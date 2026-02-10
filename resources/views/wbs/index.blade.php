@@ -34,10 +34,10 @@
                         </a>
                     @endif
 
-                    <a href="{{ route('wbs.create') }}"
+                    {{-- <a href="{{ route('wbs.create') }}"
                         class="inline-flex items-center rounded-xl bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 shadow">
                         + Form WBS
-                    </a>
+                    </a> --}}
 
                     @auth
                         <form action="{{ route('logout') }}" method="POST" class="ml-2 inline-block">
@@ -247,8 +247,7 @@
                                                     data-waktu="{{ $waktu_singkat }}"
                                                     data-lokasi="{{ $lokasi }}"
                                                     data-terlapor="{{ $terlapor }}"
-                                                    data-saksi="{{ $saksi }}"
-                                                    data-bukti="{{ $bukti }}"
+                                                    data-saksi="{{ $saksi }}" data-bukti="{{ $bukti }}"
                                                     data-deskripsi="{{ $deskripsi }}"
                                                     data-dampak="{{ $dampak }}"
                                                     data-harapan="{{ $harapan }}"
