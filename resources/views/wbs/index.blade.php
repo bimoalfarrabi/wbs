@@ -27,10 +27,32 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
+                    @if (auth()->check() && auth()->user()->hasRole('superadmin'))
+                        <a href="{{ route('users.index') }}"
+                            class="inline-flex items-center rounded-xl bg-purple-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-purple-700 shadow mr-2">
+                            Manajemen User
+                        </a>
+                    @endif
+
                     <a href="{{ route('wbs.create') }}"
                         class="inline-flex items-center rounded-xl bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 shadow">
                         + Form WBS
                     </a>
+
+                    @auth
+                        <form action="{{ route('logout') }}" method="POST" class="ml-2 inline-block">
+                            @csrf
+                            <button type="submit"
+                                class="text-xs font-medium text-red-600 hover:text-red-700 bg-white px-3 py-1.5 rounded-xl border border-red-200">
+                                Logout
+                            </button>
+                        </form>
+                    @else
+                        <a href="{{ route('login') }}"
+                            class="ml-2 text-xs font-medium text-slate-600 hover:text-blue-600 bg-white px-3 py-1.5 rounded-xl border border-slate-200">
+                            Login
+                        </a>
+                    @endauth
                 </div>
             </div>
         </header>
@@ -225,7 +247,8 @@
                                                     data-waktu="{{ $waktu_singkat }}"
                                                     data-lokasi="{{ $lokasi }}"
                                                     data-terlapor="{{ $terlapor }}"
-                                                    data-saksi="{{ $saksi }}" data-bukti="{{ $bukti }}"
+                                                    data-saksi="{{ $saksi }}"
+                                                    data-bukti="{{ $bukti }}"
                                                     data-deskripsi="{{ $deskripsi }}"
                                                     data-dampak="{{ $dampak }}"
                                                     data-harapan="{{ $harapan }}"
