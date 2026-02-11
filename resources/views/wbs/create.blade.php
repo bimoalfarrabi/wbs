@@ -199,7 +199,7 @@
                             </label>
                             <select id="jenis_pelanggaran" name="jenis_pelanggaran"
                                 class="mt-1 block w-full rounded-xl border px-3 py-2 text-sm text-slate-900 shadow-sm
-                                           @error('jenis_pelanggaran') border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-500 @else border-slate-300 bg-white focus:border-blue-500 focus:ring-blue-500 @enderror">
+                                        @error('jenis_pelanggaran') border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-500 @else border-slate-300 bg-white focus:border-blue-500 focus:ring-blue-500 @enderror">
                                 <option value="">-- Pilih jenis pelanggaran --</option>
                                 @php
                                     $opsi_pelanggaran = [
@@ -234,7 +234,7 @@
                             <textarea id="deskripsi" name="deskripsi"
                                 placeholder="Jelaskan secara rinci: apa yang terjadi, siapa yang terlibat, bagaimana kejadiannya, dan mengapa dianggap pelanggaran."
                                 class="mt-1 block w-full rounded-xl border px-3 py-2 text-sm text-slate-900 shadow-sm min-h-[120px]
-                                             @error('deskripsi') border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-500 @else border-slate-300 bg-white focus:border-blue-500 focus:ring-blue-500 @enderror">{{ old('deskripsi') }}</textarea>
+                                            @error('deskripsi') border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-500 @else border-slate-300 bg-white focus:border-blue-500 focus:ring-blue-500 @enderror">{{ old('deskripsi') }}</textarea>
                         </div>
                     </section>
 
@@ -250,7 +250,7 @@
                                 <input type="date" id="tanggal_kejadian" name="tanggal_kejadian"
                                     value="{{ old('tanggal_kejadian') }}" max="{{ date('Y-m-d') }}"
                                     class="mt-1 block w-full rounded-xl border px-3 py-2 text-sm text-slate-900 shadow-sm
-                                              @error('tanggal_kejadian') border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-500 @else border-slate-300 bg-white focus:border-blue-500 focus:ring-blue-500 @enderror">
+                                            @error('tanggal_kejadian') border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-500 @else border-slate-300 bg-white focus:border-blue-500 focus:ring-blue-500 @enderror">
                             </div>
                             <div>
                                 <label for="waktu_kejadian" class="block text-sm font-medium text-slate-700">
@@ -269,7 +269,7 @@
                             <input type="text" id="lokasi" name="lokasi" value="{{ old('lokasi') }}"
                                 placeholder="Contoh: IGD, Ruang Rawat Inap, Gudang Farmasi"
                                 class="mt-1 block w-full rounded-xl border px-3 py-2 text-sm text-slate-900 shadow-sm
-                                          @error('lokasi') border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-500 @else border-slate-300 bg-white focus:border-blue-500 focus:ring-blue-500 @enderror">
+                                        @error('lokasi') border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-500 @else border-slate-300 bg-white focus:border-blue-500 focus:ring-blue-500 @enderror">
                         </div>
                     </section>
 
