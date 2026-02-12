@@ -195,7 +195,7 @@
                 
                 <div>
                     <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Upload Foto atau Video Bukti</label>
-                    <div class="flex items-center justify-center w-full">
+                    <div id="upload-container" class="flex items-center justify-center w-full">
                         <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-200 border-dashed rounded-2xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition-all">
                             <div class="flex flex-col items-center justify-center pt-5 pb-6">
                                 <svg class="w-8 h-8 mb-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -204,8 +204,22 @@
                                 <p class="mb-1 text-xs text-slate-500 font-bold uppercase tracking-tight">Klik untuk pilih file</p>
                                 <p class="text-[10px] text-slate-400">Video max 50MB, Gambar max 5MB</p>
                             </div>
-                            <input type="file" id="bukti_file" name="bukti_file" accept="image/*,video/*" class="hidden" />
+                            <input type="file" id="bukti_file" name="bukti_file" accept="image/*,video/*" class="hidden" onchange="previewMedia(this)" />
                         </label>
+                    </div>
+
+                    <!-- PREVIEW CONTAINER -->
+                    <div id="preview-container" class="hidden mt-4 bg-slate-50 border border-slate-200 rounded-2xl p-4">
+                        <div class="flex items-center gap-4">
+                            <div id="preview-content" class="h-20 w-20 rounded-xl overflow-hidden bg-slate-200 shrink-0 border border-slate-300">
+                                <!-- thumbnail or icon will be here -->
+                            </div>
+                            <div class="flex-grow overflow-hidden">
+                                <p id="file-name" class="text-xs font-bold text-slate-900 truncate mb-0.5"></p>
+                                <p id="file-size" class="text-[10px] text-slate-500 font-medium"></p>
+                                <button type="button" onclick="clearPreview()" class="mt-2 text-[10px] font-bold text-red-500 uppercase tracking-wider hover:text-red-700 transition-colors">Hapus File</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -226,5 +240,59 @@
             </div>
         </form>
     </div>
+
+    <script>
+        function previewMedia(input) {
+            const file = input.files[0];
+            const previewContainer = document.getElementById('preview-container');
+            const uploadContainer = document.getElementById('upload-container');
+            const previewContent = document.getElementById('preview-content');
+            const fileName = document.getElementById('file-name');
+            const fileSize = document.getElementById('file-size');
+
+            if (file) {
+                uploadContainer.classList.add('hidden');
+                previewContainer.classList.remove('hidden');
+                fileName.textContent = file.name;
+                
+                // Format file size
+                const size = file.size / (1024 * 1024);
+                fileSize.textContent = size.toFixed(2) + ' MB';
+
+                previewContent.innerHTML = '';
+
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.className = 'h-full w-full object-cover';
+                        previewContent.appendChild(img);
+                    }
+                    reader.readAsDataURL(file);
+                } else if (file.type.startsWith('video/')) {
+                    previewContent.className = 'h-20 w-20 rounded-xl overflow-hidden bg-indigo-600 shrink-0 border border-indigo-700 flex items-center justify-center';
+                    previewContent.innerHTML = `
+                        <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                    `;
+                }
+            }
+        }
+
+        function clearPreview() {
+            const input = document.getElementById('bukti_file');
+            const previewContainer = document.getElementById('preview-container');
+            const uploadContainer = document.getElementById('upload-container');
+            const previewContent = document.getElementById('preview-content');
+            
+            input.value = '';
+            previewContent.innerHTML = '';
+            previewContent.className = 'h-20 w-20 rounded-xl overflow-hidden bg-slate-200 shrink-0 border border-slate-300';
+            previewContainer.classList.add('hidden');
+            uploadContainer.classList.remove('hidden');
+        }
+    </script>
 @endif
 @endsection
