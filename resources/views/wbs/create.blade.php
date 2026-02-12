@@ -210,6 +210,12 @@
                 </div>
                 
                 <div>
+                    <label for="bukti" class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Keterangan Bukti (Teks)</label>
+                    <textarea id="bukti" name="bukti" placeholder="Jelaskan bukti yang Anda miliki..."
+                        class="block w-full rounded-2xl border-slate-200 bg-white px-4 py-3 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 transition-all min-h-[100px]">{{ old('bukti') }}</textarea>
+                </div>
+
+                <div>
                     <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Upload Foto atau Video Bukti</label>
                     <div id="upload-container" class="flex items-center justify-center w-full">
                         <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-200 border-dashed rounded-2xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition-all">

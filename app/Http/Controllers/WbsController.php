@@ -73,21 +73,21 @@ class WbsController extends Controller
         }
 
         WbsReport::create([
-            'nama_pelapor' => $validated['nama_pelapor'],
-            'kontak_pelapor' => $validated['kontak_pelapor'],
-            'hubungan' => $validated['hubungan'],
+            'nama_pelapor' => $validated['nama_pelapor'] ?? null,
+            'kontak_pelapor' => $validated['kontak_pelapor'] ?? null,
+            'hubungan' => $validated['hubungan'] ?? null,
             'jenis_pelanggaran' => $validated['jenis_pelanggaran'],
             'deskripsi' => $validated['deskripsi'],
             'tanggal_kejadian' => $validated['tanggal_kejadian'],
-            'waktu_kejadian' => $validated['waktu_kejadian'],
+            'waktu_kejadian' => $validated['waktu_kejadian'] ?? null,
             'lokasi' => $validated['lokasi'],
-            'terlapor' => $validated['terlapor'],
-            'saksi' => $validated['saksi'],
-            'bukti' => $validated['bukti'],
+            'terlapor' => $validated['terlapor'] ?? null,
+            'saksi' => $validated['saksi'] ?? null,
+            'bukti' => $validated['bukti'] ?? null,
             'foto_bukti' => $foto_path,
             'video_bukti' => $video_path,
-            'dampak' => $validated['dampak'],
-            'harapan' => $validated['harapan'],
+            'dampak' => $validated['dampak'] ?? null,
+            'harapan' => $validated['harapan'] ?? null,
         ]);
 
         return redirect()->route('wbs.create')->with('success', true);
