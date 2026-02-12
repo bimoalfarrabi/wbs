@@ -16,7 +16,7 @@
                 <p class="text-sm text-slate-500 font-medium">Terima kasih atas partisipasi Anda.</p>
             </div>
         </div>
-        
+
         <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 mb-8">
             <p class="text-slate-700 text-sm leading-relaxed">
                 Laporan Anda telah kami terima dan masuk ke dalam sistem antrean verifikasi. Tim Whistleblowing System RSUD Blambangan akan menindaklanjuti laporan ini sesuai dengan prosedur yang berlaku secara rahasia dan profesional.
@@ -70,7 +70,7 @@
             <h2 class="text-lg font-bold text-white">Form Pengaduan WBS</h2>
             <p class="text-xs text-blue-100">RSUD Blambangan Banyuwangi</p>
         </div>
-        <img src="https://rsudblambangan.id/images/navbar/Logo.png" alt="Logo RSUD" class="h-10 w-auto brightness-200 grayscale contrast-200">
+        <img src="https://rsudblambangan.id/images/navbar/Logo.png" alt="Logo RSUD" class="h-10 w-auto">
     </div>
 
     <div class="p-8">
@@ -92,7 +92,7 @@
 
         <form method="post" action="{{ route('wbs.store') }}" enctype="multipart/form-data" class="space-y-8">
             @csrf
-            
+
             <!-- 1. Data Pelapor -->
             <div class="space-y-4">
                 <div class="flex items-center gap-2 border-b border-slate-100 pb-1">
@@ -100,7 +100,7 @@
                     <h3 class="text-xs font-bold text-slate-900 uppercase tracking-widest">Identitas Pelapor</h3>
                     <span class="text-[10px] text-slate-400 font-medium ml-auto uppercase italic">(Opsional)</span>
                 </div>
-                
+
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label for="nama_pelapor" class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Nama Pelapor</label>
@@ -113,7 +113,7 @@
                             class="block w-full rounded-xl border-slate-200 bg-white px-4 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 transition-all">
                     </div>
                 </div>
-                
+
                 <div>
                     <label for="hubungan" class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Hubungan dengan RSUD</label>
                     <select id="hubungan" name="hubungan" class="block w-full rounded-xl border-slate-200 bg-white px-4 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 transition-all">
@@ -132,7 +132,7 @@
                     <h3 class="text-xs font-bold text-slate-900 uppercase tracking-widest">Jenis Pelanggaran</h3>
                     <span class="text-[10px] text-red-500 font-bold ml-auto uppercase italic">Wajib *</span>
                 </div>
-                
+
                 <select id="jenis_pelanggaran" name="jenis_pelanggaran" required
                     class="block w-full rounded-xl border-slate-200 bg-white px-4 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 transition-all @error('jenis_pelanggaran') border-red-500 @enderror">
                     <option value="">-- Pilih Kategori Pelanggaran --</option>
@@ -149,7 +149,7 @@
                     <h3 class="text-xs font-bold text-slate-900 uppercase tracking-widest">Kronologi Kejadian</h3>
                     <span class="text-[10px] text-red-500 font-bold ml-auto uppercase italic">Wajib *</span>
                 </div>
-                
+
                 <textarea id="deskripsi" name="deskripsi" required placeholder="Jelaskan secara detail kejadian yang Anda temukan..."
                     class="block w-full rounded-2xl border-slate-200 bg-white px-4 py-3 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 transition-all min-h-[150px] @error('deskripsi') border-red-500 @enderror">{{ old('deskripsi') }}</textarea>
             </div>
@@ -161,7 +161,7 @@
                     <h3 class="text-xs font-bold text-slate-900 uppercase tracking-widest">Waktu & Lokasi</h3>
                     <span class="text-[10px] text-red-500 font-bold ml-auto uppercase italic">Wajib *</span>
                 </div>
-                
+
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label for="tanggal_kejadian" class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Tanggal Kejadian</label>
@@ -187,7 +187,7 @@
                     <span class="text-[10px] font-bold text-white bg-slate-900 h-5 w-5 rounded-full flex items-center justify-center">5</span>
                     <h3 class="text-xs font-bold text-slate-900 uppercase tracking-widest">Pihak Terkait</h3>
                 </div>
-                
+
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label for="terlapor" class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Nama/Jabatan Terlapor</label>
@@ -208,7 +208,7 @@
                     <span class="text-[10px] font-bold text-white bg-slate-900 h-5 w-5 rounded-full flex items-center justify-center">6</span>
                     <h3 class="text-xs font-bold text-slate-900 uppercase tracking-widest">Bukti Pendukung</h3>
                 </div>
-                
+
                 <div>
                     <label for="bukti" class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Keterangan Bukti (Teks)</label>
                     <textarea id="bukti" name="bukti" placeholder="Jelaskan bukti yang Anda miliki..."
@@ -279,7 +279,7 @@
                 uploadContainer.classList.add('hidden');
                 previewContainer.classList.remove('hidden');
                 fileName.textContent = file.name;
-                
+
                 // Format file size
                 const size = file.size / (1024 * 1024);
                 fileSize.textContent = size.toFixed(2) + ' MB';
@@ -311,7 +311,7 @@
             const previewContainer = document.getElementById('preview-container');
             const uploadContainer = document.getElementById('upload-container');
             const previewContent = document.getElementById('preview-content');
-            
+
             input.value = '';
             previewContent.innerHTML = '';
             previewContent.className = 'h-20 w-20 rounded-xl overflow-hidden bg-slate-200 shrink-0 border border-slate-300';
