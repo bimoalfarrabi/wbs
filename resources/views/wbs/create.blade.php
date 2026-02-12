@@ -74,6 +74,22 @@
     </div>
 
     <div class="p-8">
+        @if ($errors->any())
+            <div class="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm flex items-start gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500 shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                </svg>
+                <div>
+                    <p class="font-bold">Mohon perbaiki kesalahan berikut:</p>
+                    <ul class="list-disc list-inside mt-1">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+        @endif
+
         <form method="post" action="{{ route('wbs.store') }}" enctype="multipart/form-data" class="space-y-8">
             @csrf
             
@@ -207,6 +223,9 @@
                             <input type="file" id="bukti_file" name="bukti_file" accept="image/*,video/*" class="hidden" onchange="previewMedia(this)" />
                         </label>
                     </div>
+                    @error('bukti_file')
+                        <p class="mt-2 text-xs text-red-600 font-bold uppercase tracking-tight">{{ $message }}</p>
+                    @enderror
 
                     <!-- PREVIEW CONTAINER -->
                     <div id="preview-container" class="hidden mt-4 bg-slate-50 border border-slate-200 rounded-2xl p-4">
