@@ -1,677 +1,356 @@
-<!DOCTYPE html>
-<html lang="id">
+@extends('layouts.app')
 
-<head>
-    <meta charset="UTF-8">
-    <title>Dashboard WBS - RSUD Blambangan</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
+@section('title', 'Dashboard WBS - RSUD Blambangan')
 
-<body class="min-h-screen bg-slate-100 text-slate-900">
-    <div class="min-h-screen flex flex-col">
-        <!-- HEADER -->
-        <header class="border-b border-slate-200 bg-white/90 backdrop-blur shadow-sm">
-            <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <img src="https://rsudblambangan.id/images/navbar/Logo.png" alt="Logo RSUD Blambangan"
-                        class="h-10 w-10 object-contain">
-                    <div>
-                        <h1 class="text-xl font-semibold text-slate-900">
-                            Dashboard Whistle Blowing System
-                        </h1>
-                        <p class="text-xs text-slate-500">
-                            RSUD Blambangan - Monitoring laporan pengaduan
-                        </p>
-                    </div>
-                </div>
-                <div class="flex items-center gap-2">
-                    @if (auth()->check() && auth()->user()->hasRole('superadmin'))
-                        <a href="{{ route('users.index') }}"
-                            class="inline-flex items-center rounded-xl bg-purple-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-purple-700 shadow mr-2">
-                            Manajemen User
-                        </a>
-                    @endif
-
-                    {{-- <a href="{{ route('wbs.create') }}"
-                        class="inline-flex items-center rounded-xl bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 shadow">
-                        + Form WBS
-                    </a> --}}
-
-                    @auth
-                        <form action="{{ route('logout') }}" method="POST" class="ml-2 inline-block">
-                            @csrf
-                            <button type="submit"
-                                class="text-xs font-medium text-red-600 hover:text-red-700 bg-white px-3 py-1.5 rounded-xl border border-red-200">
-                                Logout
-                            </button>
-                        </form>
-                    @else
-                        <a href="{{ route('login') }}"
-                            class="ml-2 text-xs font-medium text-slate-600 hover:text-blue-600 bg-white px-3 py-1.5 rounded-xl border border-slate-200">
-                            Login
-                        </a>
-                    @endauth
-                </div>
+@section('content')
+<div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">
+        <div>
+            <h2 class="text-lg font-bold text-slate-900">Daftar Laporan Masuk</h2>
+            <p class="text-xs text-slate-500 mt-1">
+                Monitoring laporan pengaduan Whistle Blowing System RSUD Blambangan
+            </p>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="text-right">
+                <p class="text-[10px] uppercase tracking-wider font-bold text-slate-400 leading-none">Total Laporan</p>
+                <p class="text-xl font-bold text-slate-900">{{ $reports->count() }}</p>
             </div>
-        </header>
+        </div>
+    </div>
 
-        <!-- CONTENT -->
-        <main class="flex-1">
-            <div class="max-w-6xl mx-auto px-4 py-6">
-                <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-                    <div class="px-4 py-3 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-                        <div>
-                            <h2 class="text-lg font-semibold text-slate-900">Daftar Laporan</h2>
-                            <p class="text-xs text-slate-500 mt-1">
-                                Menampilkan seluruh laporan yang masuk dari Whistle Blowing System.
-                            </p>
-                        </div>
-                        <div class="text-xs text-slate-500">
-                            Total laporan:
-                            <span class="font-semibold text-slate-900">
-                                {{ $reports->count() }}
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full text-sm text-left text-slate-800">
-                            <thead class="bg-slate-100 border-b border-slate-200 text-xs uppercase text-slate-500">
-                                <tr>
-                                    <th class="px-4 py-3">ID</th>
-                                    <th class="px-4 py-3">Pelapor</th>
-                                    <th class="px-4 py-3">Jenis Pelanggaran</th>
-                                    <th class="px-4 py-3">Tanggal Kejadian</th>
-                                    <th class="px-4 py-3">Lokasi</th>
-                                    <th class="px-4 py-3">Media</th>
-                                    <th class="px-4 py-3">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100">
-                                @if ($reports->isEmpty())
-                                    <tr>
-                                        <td colspan="7" class="px-4 py-6 text-center text-slate-500 text-sm">
-                                            Belum ada laporan yang masuk.
-                                        </td>
-                                    </tr>
-                                @else
-                                    @foreach ($reports as $report)
-                                        @php
-                                            $id = $report->id;
-                                            $nama_pelapor_raw = $report->nama_pelapor;
-                                            $nama_pelapor = empty(trim($nama_pelapor_raw))
-                                                ? 'Anonim'
-                                                : $nama_pelapor_raw;
-                                            $kontak_pelapor = $report->kontak_pelapor ?? '';
-                                            $hubungan = $report->hubungan ?? '';
-                                            $jenis_pelanggaran = $report->jenis_pelanggaran ?? '-';
-                                            $tanggal_kejadian = $report->tanggal_kejadian; // Date string or Carbon if casted
-                                            // Ensure conversion to string if Carbon
-                                            $tanggal_kejadian_str = \Carbon\Carbon::parse($tanggal_kejadian)->format(
-                                                'Y-m-d',
-                                            );
-
-                                            $waktu_kejadian = $report->waktu_kejadian ?? '';
-                                            $lokasi = $report->lokasi ?? '-';
-                                            $terlapor = $report->terlapor ?? '';
-                                            $saksi = $report->saksi ?? '';
-                                            $bukti = $report->bukti ?? '';
-                                            $deskripsi = $report->deskripsi ?? '';
-                                            $dampak = $report->dampak ?? '';
-                                            $harapan = $report->harapan ?? '';
-                                            $foto_bukti = $report->foto_bukti;
-                                            $video_bukti = $report->video_bukti;
-
-                                            // format tanggal & hari
-                                            $tgl_tampil = '-';
-                                            $tgl_hari_tampil = '-';
-                                            if (!empty($tanggal_kejadian)) {
-                                                $ts = strtotime($tanggal_kejadian);
-                                                if ($ts !== false) {
-                                                    $hariIndo = [
-                                                        'Minggu',
-                                                        'Senin',
-                                                        'Selasa',
-                                                        'Rabu',
-                                                        'Kamis',
-                                                        'Jumat',
-                                                        'Sabtu',
-                                                    ];
-                                                    $hari = $hariIndo[(int) date('w', $ts)];
-                                                    $tgl_only = date('d/m/Y', $ts);
-                                                    $tgl_tampil = $tgl_only; // tabel
-                                                    $tgl_hari_tampil = $hari . ' ' . $tgl_only; // modal
-                                                }
-                                            }
-
-                                            // URL media absolut (Assumed stored as full URL)
-                                            $foto_full_url = $foto_bukti;
-                                            $video_full_url = $video_bukti;
-
-                                            $has_foto = !empty($foto_full_url);
-                                            $has_video = !empty($video_full_url);
-
-                                            // pilih salah satu untuk teks WA (utamakan video, lalu foto)
-                                            $media_full_url_for_text = '';
-                                            if ($video_full_url) {
-                                                $media_full_url_for_text = $video_full_url;
-                                            } elseif ($foto_full_url) {
-                                                $media_full_url_for_text = $foto_full_url;
-                                            }
-
-                                            // jam pendek
-                                            $waktu_singkat = '';
-                                            if (!empty($waktu_kejadian)) {
-                                                $waktu_singkat = substr($waktu_kejadian, 0, 5);
-                                            }
-                                        @endphp
-                                        <tr class="hover:bg-slate-50">
-                                            <td class="px-4 py-3 align-top text-xs text-slate-500">
-                                                #{{ $id }}
-                                            </td>
-                                            <td class="px-4 py-3 align-top">
-                                                <div class="flex flex-col">
-                                                    <span
-                                                        class="font-semibold {{ empty(trim($nama_pelapor_raw)) ? 'text-emerald-600' : 'text-slate-900' }}">
-                                                        {{ $nama_pelapor }}
-                                                    </span>
-                                                    @if (!empty($hubungan))
-                                                        <span class="text-[11px] text-slate-500">
-                                                            {{ $hubungan }}
-                                                        </span>
-                                                    @endif
-                                                </div>
-                                            </td>
-                                            <td class="px-4 py-3 align-top">
-                                                <div class="max-w-xs">
-                                                    <span class="text-xs font-medium text-sky-700">
-                                                        {{ $jenis_pelanggaran }}
-                                                    </span>
-                                                </div>
-                                            </td>
-                                            <td class="px-4 py-3 align-top text-xs">
-                                                <div class="flex flex-col">
-                                                    <span class="text-slate-800">{{ $tgl_tampil }}</span>
-                                                    @if (!empty($waktu_singkat))
-                                                        <span class="text-[11px] text-slate-500">
-                                                            {{ $waktu_singkat }} WIB
-                                                        </span>
-                                                    @endif
-                                                </div>
-                                            </td>
-                                            <td class="px-4 py-3 align-top text-xs">
-                                                <span class="text-slate-800">{{ $lokasi }}</span>
-                                            </td>
-                                            <td class="px-4 py-3 align-top text-xs">
-                                                @if ($has_foto)
-                                                    <button type="button"
-                                                        class="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-[11px] font-semibold text-white hover:bg-emerald-700"
-                                                        onclick="openMedia('img', '{{ $foto_full_url }}')">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                                                            fill="none" stroke="currentColor" class="h-3.5 w-3.5">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="1.5"
-                                                                d="M4.5 5.25A2.25 2.25 0 016.75 3h10.5A2.25 2.25 0 0119.5 5.25v13.5a.75.75 0 01-1.2.6l-4.8-3.6-4.8 3.6a.75.75 0 01-1.2-.6V5.25z" />
-                                                        </svg>
-                                                        Lihat Foto
-                                                    </button>
-                                                @elseif ($has_video)
-                                                    <button type="button"
-                                                        class="inline-flex items-center gap-1 rounded-lg bg-indigo-600 px-3 py-1.5 text-[11px] font-semibold text-white hover:bg-indigo-700"
-                                                        onclick="openMedia('video', '{{ $video_full_url }}')">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                                                            fill="none" stroke="currentColor" class="h-3.5 w-3.5">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="1.5"
-                                                                d="M5.25 5.25v13.5l13.5-6.75-13.5-6.75z" />
-                                                        </svg>
-                                                        Play Video
-                                                    </button>
-                                                @else
-                                                    <span class="text-[11px] text-slate-400">Tidak ada media</span>
-                                                @endif
-                                            </td>
-                                            <td class="px-4 py-3 align-top text-xs">
-                                                <button type="button"
-                                                    class="inline-flex items-center gap-1 rounded-lg border border-slate-300 px-3 py-1.5 text-[11px] font-semibold text-slate-700 hover:bg-slate-100"
-                                                    onclick="openDetail(this)" data-id="{{ $id }}"
-                                                    data-nama="{{ $nama_pelapor }}"
-                                                    data-nama-raw="{{ $nama_pelapor_raw }}"
-                                                    data-kontak="{{ $kontak_pelapor }}"
-                                                    data-hubungan="{{ $hubungan }}"
-                                                    data-jenis="{{ $jenis_pelanggaran }}"
-                                                    data-tanggal="{{ $tgl_hari_tampil }}"
-                                                    data-tanggal-raw="{{ $tanggal_kejadian_str }}"
-                                                    data-waktu="{{ $waktu_singkat }}"
-                                                    data-lokasi="{{ $lokasi }}"
-                                                    data-terlapor="{{ $terlapor }}"
-                                                    data-saksi="{{ $saksi }}" data-bukti="{{ $bukti }}"
-                                                    data-deskripsi="{{ $deskripsi }}"
-                                                    data-dampak="{{ $dampak }}"
-                                                    data-harapan="{{ $harapan }}"
-                                                    data-media="{{ $media_full_url_for_text }}">
-                                                    Detail
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    @endforeach
+    <div class="overflow-x-auto">
+        <table class="min-w-full text-sm text-left text-slate-800">
+            <thead class="bg-slate-50 border-b border-slate-200 text-xs uppercase text-slate-500 font-bold">
+                <tr>
+                    <th class="px-6 py-4">ID</th>
+                    <th class="px-6 py-4">Pelapor</th>
+                    <th class="px-6 py-4">Jenis Pelanggaran</th>
+                    <th class="px-6 py-4">Waktu & Lokasi</th>
+                    <th class="px-6 py-4 text-center">Media</th>
+                    <th class="px-6 py-4 text-right">Aksi</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                @forelse ($reports as $report)
+                    @php
+                        $nama_pelapor = empty(trim($report->nama_pelapor)) ? 'Anonim' : $report->nama_pelapor;
+                        $tanggal = \Carbon\Carbon::parse($report->tanggal_kejadian);
+                        $waktu_singkat = !empty($report->waktu_kejadian) ? substr($report->waktu_kejadian, 0, 5) : '';
+                        
+                        $has_foto = !empty($report->foto_bukti);
+                        $has_video = !empty($report->video_bukti);
+                        $media_url = $report->video_bukti ?: $report->foto_bukti;
+                    @endphp
+                    <tr class="hover:bg-slate-50/80 transition-colors">
+                        <td class="px-6 py-4 align-top text-xs font-bold text-slate-400">
+                            #{{ $report->id }}
+                        </td>
+                        <td class="px-6 py-4 align-top">
+                            <div class="flex flex-col">
+                                <span class="font-bold {{ empty(trim($report->nama_pelapor)) ? 'text-emerald-600' : 'text-slate-900' }}">
+                                    {{ $nama_pelapor }}
+                                </span>
+                                @if ($report->hubungan)
+                                    <span class="text-[10px] text-slate-500 font-medium italic">
+                                        {{ $report->hubungan }}
+                                    </span>
                                 @endif
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- KETERANGAN KECIL -->
-                <p class="mt-4 text-[11px] text-slate-500">
-                    Catatan: Nama pelapor yang kosong otomatis ditampilkan sebagai
-                    <span class="font-semibold text-emerald-600">Anonim</span>.
-                    Media hanya menampilkan salah satu: foto atau video (jika tersedia).
-                </p>
-            </div>
-        </main>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 align-top">
+                            <span class="text-xs font-bold text-blue-700 bg-blue-50 px-2 py-1 rounded-lg border border-blue-100 block w-fit">
+                                {{ $report->jenis_pelanggaran ?: '-' }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 align-top text-xs">
+                            <div class="font-bold text-slate-800">{{ $tanggal->translatedFormat('d M Y') }}</div>
+                            <div class="text-[10px] text-slate-500 flex items-center gap-1 mt-0.5">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                {{ $waktu_singkat ?: '-' }} WIB
+                                <span class="mx-1">•</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                                {{ $report->lokasi ?: '-' }}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 align-top text-center">
+                            @if ($has_foto)
+                                <button type="button" class="inline-flex items-center gap-1 rounded-lg bg-emerald-100 text-emerald-700 px-2 py-1 text-[10px] font-bold border border-emerald-200 hover:bg-emerald-200 transition-colors"
+                                    onclick="openMedia('img', '{{ $report->foto_bukti }}')">
+                                    FOTO
+                                </button>
+                            @elseif ($has_video)
+                                <button type="button" class="inline-flex items-center gap-1 rounded-lg bg-indigo-100 text-indigo-700 px-2 py-1 text-[10px] font-bold border border-indigo-200 hover:bg-indigo-200 transition-colors"
+                                    onclick="openMedia('video', '{{ $report->video_bukti }}')">
+                                    VIDEO
+                                </button>
+                            @else
+                                <span class="text-[10px] text-slate-300 font-bold">TIDAK ADA</span>
+                            @endif
+                        </td>
+                        <td class="px-6 py-4 align-top text-right">
+                            <button type="button"
+                                class="inline-flex items-center gap-1 rounded-xl bg-slate-900 px-4 py-1.5 text-xs font-bold text-white hover:bg-slate-800 shadow-sm transition-all active:scale-95"
+                                onclick="openDetail(this)" 
+                                data-id="{{ $report->id }}"
+                                data-nama="{{ $nama_pelapor }}"
+                                data-nama-raw="{{ $report->nama_pelapor }}"
+                                data-kontak="{{ $report->kontak_pelapor }}"
+                                data-hubungan="{{ $report->hubungan }}"
+                                data-jenis="{{ $report->jenis_pelanggaran }}"
+                                data-tanggal="{{ $tanggal->translatedFormat('l, d M Y') }}"
+                                data-tanggal-raw="{{ $report->tanggal_kejadian }}"
+                                data-waktu="{{ $waktu_singkat }}"
+                                data-lokasi="{{ $report->lokasi }}"
+                                data-terlapor="{{ $report->terlapor }}"
+                                data-saksi="{{ $report->saksi }}" 
+                                data-bukti="{{ $report->bukti }}"
+                                data-deskripsi="{{ $report->deskripsi }}"
+                                data-dampak="{{ $report->dampak }}"
+                                data-harapan="{{ $report->harapan }}"
+                                data-media="{{ $media_url }}">
+                                DETAIL
+                            </button>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="6" class="px-6 py-12 text-center text-slate-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-3 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <p class="font-bold">Belum ada laporan</p>
+                            <p class="text-xs">Laporan pengaduan yang masuk akan muncul di sini.</p>
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
+</div>
 
-    <!-- MODAL MEDIA (FOTO / VIDEO) -->
-    <div id="mediaModal" class="fixed inset-0 z-40 hidden items-center justify-center bg-black/50 backdrop-blur-sm">
-        <div class="max-w-3xl w-full mx-4 bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden">
-            <div class="px-4 py-3 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-                <h3 class="text-sm font-semibold text-slate-900" id="mediaTitle">
-                    Media Bukti
-                </h3>
-                <button type="button" class="rounded-full p-1.5 hover:bg-slate-100 text-slate-500"
-                    onclick="closeMedia()">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        class="h-4 w-4">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                            d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-            <div class="p-4 bg-white">
-                <div id="mediaContainer" class="flex items-center justify-center max-h-[70vh] overflow-hidden">
-                    <!-- isi media (img / video) lewat JS -->
-                </div>
+<p class="mt-4 text-[10px] text-slate-400 font-medium text-center italic">
+    *Nama pelapor yang kosong otomatis ditampilkan sebagai <span class="text-emerald-500">Anonim</span> demi kerahasiaan.
+</p>
+
+<!-- MODAL MEDIA -->
+<div id="mediaModal" class="fixed inset-0 z-[60] hidden items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+    <div class="max-w-3xl w-full bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200">
+        <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+            <h3 class="text-sm font-bold text-slate-900 uppercase tracking-widest" id="mediaTitle">Media Bukti</h3>
+            <button type="button" class="p-2 hover:bg-slate-200 rounded-xl transition-colors text-slate-500" onclick="closeMedia()">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+            </button>
+        </div>
+        <div class="p-6">
+            <div id="mediaContainer" class="flex items-center justify-center max-h-[60vh] overflow-hidden bg-slate-100 rounded-xl border border-slate-200">
+                <!-- content via JS -->
             </div>
         </div>
     </div>
+</div>
 
-    <!-- MODAL DETAIL LAPORAN -->
-    <div id="detailModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm">
-        <div class="max-w-3xl w-full mx-4 bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden">
-            <div class="px-5 py-3 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-                <div>
-                    <p class="text-[11px] uppercase tracking-wide text-slate-500 mb-1">
-                        Detail Laporan WBS
-                    </p>
-                    <h3 class="text-sm font-semibold text-slate-900" id="detailIdTitle">
-                        <!-- ID + Jenis pelanggaran -->
-                    </h3>
-                </div>
-                <button type="button" class="rounded-full p-1.5 hover:bg-slate-100 text-slate-500"
-                    onclick="closeDetail()">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        class="h-4 w-4">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                            d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
+<!-- MODAL DETAIL -->
+<div id="detailModal" class="fixed inset-0 z-[60] hidden items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+    <div class="max-w-3xl w-full bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200">
+        <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+            <div>
+                <p class="text-[10px] font-bold text-blue-600 uppercase tracking-widest leading-none mb-1">Detail Laporan</p>
+                <h3 class="text-base font-bold text-slate-900" id="detailIdTitle"></h3>
             </div>
-            <div class="px-5 py-4 max-h-[75vh] overflow-y-auto space-y-5 text-sm bg-white">
-                <!-- Data Pelapor -->
-                <section class="space-y-2">
-                    <h4 class="text-xs font-semibold text-slate-700 flex items-center gap-2">
-                        <span
-                            class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-[11px] text-slate-600 border border-slate-200">1</span>
-                        Data Pelapor
-                    </h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div class="space-y-1">
-                            <p class="text-[11px] uppercase tracking-wide text-slate-500">Nama Pelapor</p>
-                            <p id="detailNamaPelapor" class="font-semibold text-slate-900"></p>
+            <button type="button" class="p-2 hover:bg-slate-200 rounded-xl transition-colors text-slate-500" onclick="closeDetail()">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+            </button>
+        </div>
+        <div class="p-6 max-h-[70vh] overflow-y-auto space-y-6">
+            <!-- Data Section -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-4">
+                    <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-1">Data Pelapor</h4>
+                    <div class="space-y-2">
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-500 leading-none">Nama</p>
+                            <p class="font-bold text-slate-900" id="detailNamaPelapor"></p>
                         </div>
-                        <div class="space-y-1">
-                            <p class="text-[11px] uppercase tracking-wide text-slate-500">Kontak Pelapor</p>
-                            <p id="detailKontakPelapor" class="text-slate-800"></p>
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-500 leading-none">Kontak</p>
+                            <p class="text-sm font-medium text-slate-700" id="detailKontakPelapor"></p>
                         </div>
-                        <div class="space-y-1">
-                            <p class="text-[11px] uppercase tracking-wide text-slate-500">Hubungan dengan Organisasi
-                            </p>
-                            <p id="detailHubungan" class="text-slate-800"></p>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Waktu & Lokasi -->
-                <section class="space-y-2">
-                    <h4 class="text-xs font-semibold text-slate-700 flex items-center gap-2">
-                        <span
-                            class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-[11px] text-slate-600 border border-slate-200">2</span>
-                        Waktu & Lokasi Kejadian
-                    </h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div class="space-y-1">
-                            <p class="text-[11px] uppercase tracking-wide text-slate-500">Hari, Tanggal</p>
-                            <p id="detailTanggal" class="text-slate-800"></p>
-                        </div>
-                        <div class="space-y-1">
-                            <p class="text-[11px] uppercase tracking-wide text-slate-500">Jam</p>
-                            <p id="detailWaktu" class="text-slate-800"></p>
-                        </div>
-                        <div class="space-y-1">
-                            <p class="text-[11px] uppercase tracking-wide text-slate-500">Lokasi</p>
-                            <p id="detailLokasi" class="text-slate-800"></p>
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-500 leading-none">Hubungan</p>
+                            <p class="text-sm font-medium text-slate-700" id="detailHubungan"></p>
                         </div>
                     </div>
-                </section>
-
-                <!-- Pihak Terlibat -->
-                <section class="space-y-2">
-                    <h4 class="text-xs font-semibold text-slate-700 flex items-center gap-2">
-                        <span
-                            class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-[11px] text-slate-600 border border-slate-200">3</span>
-                        Pihak Terlibat
-                    </h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div class="space-y-1">
-                            <p class="text-[11px] uppercase tracking-wide text-slate-500">Nama / Jabatan Terlapor</p>
-                            <p id="detailTerlapor" class="text-slate-800 whitespace-pre-line"></p>
+                </div>
+                <div class="space-y-4">
+                    <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-1">Waktu & Lokasi</h4>
+                    <div class="space-y-2">
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-500 leading-none">Hari, Tanggal</p>
+                            <p class="text-sm font-bold text-slate-900" id="detailTanggal"></p>
                         </div>
-                        <div class="space-y-1">
-                            <p class="text-[11px] uppercase tracking-wide text-slate-500">Saksi</p>
-                            <p id="detailSaksi" class="text-slate-800 whitespace-pre-line"></p>
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-500 leading-none">Jam / Lokasi</p>
+                            <p class="text-sm font-medium text-slate-700"><span id="detailWaktu"></span> • <span id="detailLokasi"></span></p>
                         </div>
                     </div>
-                </section>
-
-                <!-- Kronologi -->
-                <section class="space-y-2">
-                    <h4 class="text-xs font-semibold text-slate-700 flex items-center gap-2">
-                        <span
-                            class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-[11px] text-slate-600 border border-slate-200">4</span>
-                        Kronologi Kejadian
-                    </h4>
-                    <p id="detailDeskripsi"
-                        class="text-slate-800 whitespace-pre-line bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
-                    </p>
-                </section>
-
-                <!-- Bukti -->
-                <section class="space-y-2">
-                    <h4 class="text-xs font-semibold text-slate-700 flex items-center gap-2">
-                        <span
-                            class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-[11px] text-slate-600 border border-slate-200">5</span>
-                        Keterangan Bukti
-                    </h4>
-                    <p id="detailBukti"
-                        class="text-slate-800 whitespace-pre-line bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
-                    </p>
-                </section>
-
-                <!-- Media Bukti -->
-                <section class="space-y-2">
-                    <h4 class="text-xs font-semibold text-slate-700 flex items-center gap-2">
-                        <span
-                            class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-[11px] text-slate-600 border border-slate-200">6</span>
-                        Media Bukti
-                    </h4>
-                    <p id="detailMediaLink"
-                        class="text-slate-800 break-all bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs">
-                    </p>
-                </section>
-
-                <!-- Dampak & Harapan -->
-                <section class="space-y-3">
-                    <h4 class="text-xs font-semibold text-slate-700 flex items-center gap-2">
-                        <span
-                            class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-[11px] text-slate-600 border border-slate-200">7</span>
-                        Dampak & Harapan
-                    </h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div class="space-y-1">
-                            <p class="text-[11px] uppercase tracking-wide text-slate-500">Dampak Kejadian</p>
-                            <p id="detailDampak"
-                                class="text-slate-800 whitespace-pre-line bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
-                            </p>
-                        </div>
-                        <div class="space-y-1">
-                            <p class="text-[11px] uppercase tracking-wide text-slate-500">Harapan Pelapor</p>
-                            <p id="detailHarapan"
-                                class="text-slate-800 whitespace-pre-line bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
-                            </p>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Tombol copy ke WA -->
-                <div class="pt-2 flex justify-end">
-                    <button type="button" onclick="copyToWhatsApp()"
-                        class="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-700">
-                        <span>Salin teks untuk WhatsApp</span>
-                    </button>
                 </div>
             </div>
-            <div class="px-5 py-3 border-t border-slate-200 text-[11px] text-slate-500 bg-slate-50">
-                Informasi pada modal ini bersifat rahasia dan hanya digunakan untuk kepentingan penanganan pengaduan.
+
+            <div class="space-y-4 pt-2">
+                <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-1">Kronologi & Bukti</h4>
+                <div class="space-y-3">
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-500 mb-1">Deskripsi Kejadian</p>
+                        <div class="bg-slate-50 rounded-xl p-4 border border-slate-100 text-sm text-slate-700 whitespace-pre-line" id="detailDeskripsi"></div>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-500 mb-1">Terlapor & Saksi</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-medium">
+                            <div class="bg-slate-50 rounded-lg p-3 border border-slate-100">
+                                <p class="text-[9px] font-bold text-slate-400 uppercase mb-1">Terlapor</p>
+                                <span id="detailTerlapor"></span>
+                            </div>
+                            <div class="bg-slate-50 rounded-lg p-3 border border-slate-100">
+                                <p class="text-[9px] font-bold text-slate-400 uppercase mb-1">Saksi</p>
+                                <span id="detailSaksi"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                <div class="space-y-2">
+                    <p class="text-[10px] font-bold text-slate-500">Dampak</p>
+                    <div class="bg-slate-50 rounded-lg p-3 border border-slate-100 text-xs text-slate-600 italic" id="detailDampak"></div>
+                </div>
+                <div class="space-y-2">
+                    <p class="text-[10px] font-bold text-slate-500">Harapan Pelapor</p>
+                    <div class="bg-slate-50 rounded-lg p-3 border border-slate-100 text-xs text-slate-600 italic" id="detailHarapan"></div>
+                </div>
+            </div>
+
+            <div class="hidden" id="detailMediaLink"></div>
+        </div>
+        <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
+            <p class="text-[10px] font-medium text-slate-400 italic leading-tight max-w-[60%]">*Data bersifat rahasia. Dilarang menyebarkan informasi pelapor.</p>
+            <button type="button" onclick="copyToWhatsApp()"
+                class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-700 transition-all active:scale-95 shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.246 2.248 3.484 5.232 3.483 8.413-.003 6.557-5.338 11.892-11.893 11.892-1.997-.001-3.951-.5-5.688-1.448l-6.308 1.654zm6.236-3.323l.346.205c1.284.762 2.738 1.164 4.226 1.165 4.827 0 8.756-3.928 8.759-8.755.002-2.338-.91-4.536-2.565-6.194-1.655-1.658-3.853-2.571-6.191-2.572-4.827 0-8.755 3.928-8.758 8.756-.001 1.554.411 3.068 1.193 4.398l.225.385-.999 3.646 3.764-.988z" />
+                </svg>
+                SALIN KE WHATSAPP
+            </button>
         </div>
     </div>
+</div>
 
-    <script>
-        function openMedia(type, src) {
-            const modal = document.getElementById('mediaModal');
-            const container = document.getElementById('mediaContainer');
-            const title = document.getElementById('mediaTitle');
+@push('scripts')
+<script>
+    function openMedia(type, src) {
+        const modal = document.getElementById('mediaModal');
+        const container = document.getElementById('mediaContainer');
+        const title = document.getElementById('mediaTitle');
 
-            container.innerHTML = '';
+        container.innerHTML = '';
 
-            if (type === 'img') {
-                title.textContent = 'Foto Bukti';
-                const img = document.createElement('img');
-                img.src = src;
-                img.alt = 'Foto Bukti';
-                img.className = 'max-h-[70vh] max-w-full rounded-xl shadow object-contain';
-                container.appendChild(img);
-            } else if (type === 'video') {
-                title.textContent = 'Video Bukti';
-                const video = document.createElement('video');
-                video.controls = true;
-                video.className = 'max-h-[70vh] max-w-full rounded-xl shadow';
-                video.src = src;
-                container.appendChild(video);
-            }
-
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
+        if (type === 'img') {
+            title.textContent = 'FOTO BUKTI';
+            const img = document.createElement('img');
+            img.src = src;
+            img.className = 'max-h-[60vh] object-contain';
+            container.appendChild(img);
+        } else if (type === 'video') {
+            title.textContent = 'VIDEO BUKTI';
+            const video = document.createElement('video');
+            video.controls = true;
+            video.className = 'max-h-[60vh] w-full';
+            video.src = src;
+            container.appendChild(video);
         }
 
-        function closeMedia() {
-            const modal = document.getElementById('mediaModal');
-            const container = document.getElementById('mediaContainer');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-            container.innerHTML = '';
-        }
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
 
-        function openDetail(button) {
-            const d = button.dataset;
-            const modal = document.getElementById('detailModal');
+    function closeMedia() {
+        const modal = document.getElementById('mediaModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
 
-            const titleEl = document.getElementById('detailIdTitle');
-            const jenis = d.jenis && d.jenis.trim() !== '' ? d.jenis : 'Jenis pelanggaran belum diisi';
-            titleEl.textContent = '#' + d.id + ' · ' + jenis;
+    function openDetail(button) {
+        const d = button.dataset;
+        const modal = document.getElementById('detailModal');
 
-            document.getElementById('detailNamaPelapor').textContent = d.nama || 'Anonim';
+        document.getElementById('detailIdTitle').textContent = '#' + d.id + ' · ' + (d.jenis || 'Tanpa Jenis');
+        document.getElementById('detailNamaPelapor').textContent = d.nama || 'Anonim';
+        document.getElementById('detailKontakPelapor').textContent = d.kontak || '-';
+        document.getElementById('detailHubungan').textContent = d.hubungan || '-';
+        document.getElementById('detailTanggal').textContent = d.tanggal || '-';
+        document.getElementById('detailWaktu').textContent = d.waktu ? d.waktu + ' WIB' : '-';
+        document.getElementById('detailLokasi').textContent = d.lokasi || '-';
+        document.getElementById('detailTerlapor').textContent = d.terlapor || '-';
+        document.getElementById('detailSaksi').textContent = d.saksi || '-';
+        document.getElementById('detailDeskripsi').textContent = d.deskripsi || '-';
+        document.getElementById('detailDampak').textContent = d.dampak || '-';
+        document.getElementById('detailHarapan').textContent = d.harapan || '-';
+        document.getElementById('detailMediaLink').textContent = d.media || '';
 
-            const kontakEl = document.getElementById('detailKontakPelapor');
-            kontakEl.textContent = d.kontak && d.kontak.trim() !== '' ?
-                d.kontak :
-                'Tidak dicantumkan';
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
 
-            const hubunganEl = document.getElementById('detailHubungan');
-            hubunganEl.textContent = d.hubungan && d.hubungan.trim() !== '' ?
-                d.hubungan :
-                'Tidak diisi';
+    function closeDetail() {
+        const modal = document.getElementById('detailModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
 
-            document.getElementById('detailTanggal').textContent =
-                d.tanggal && d.tanggal.trim() !== '' ? d.tanggal : '-';
+    function copyToWhatsApp() {
+        const title = document.getElementById('detailIdTitle').textContent.trim();
+        const nama = document.getElementById('detailNamaPelapor').textContent.trim();
+        const kontak = document.getElementById('detailKontakPelapor').textContent.trim();
+        const hubungan = document.getElementById('detailHubungan').textContent.trim();
+        const tanggal = document.getElementById('detailTanggal').textContent.trim();
+        const jam = document.getElementById('detailWaktu').textContent.trim();
+        const lokasi = document.getElementById('detailLokasi').textContent.trim();
+        const terlapor = document.getElementById('detailTerlapor').textContent.trim();
+        const saksi = document.getElementById('detailSaksi').textContent.trim();
+        const kronologi = document.getElementById('detailDeskripsi').textContent.trim();
+        const dampak = document.getElementById('detailDampak').textContent.trim();
+        const harapan = document.getElementById('detailHarapan').textContent.trim();
+        const mediaLink = document.getElementById('detailMediaLink').textContent.trim();
 
-            const detailJamEl = document.getElementById('detailWaktu');
-            if (d.waktu && d.waktu.trim() !== '' && d.waktu !== '00:00') {
-                detailJamEl.textContent = d.waktu + ' WIB';
-            } else {
-                detailJamEl.textContent = '-';
-            }
+        const text = `*LAPORAN WBS RSUD BLAMBANGAN*\n*${title}*\n\n*PELAPOR*\nNama: ${nama}\nKontak: ${kontak}\nHubungan: ${hubungan}\n\n*WAKTU & LOKASI*\nHari/Tgl: ${tanggal}\nJam: ${jam}\nLokasi: ${lokasi}\n\n*PIHAK TERLIBAT*\nTerlapor: ${terlapor}\nSaksi: ${saksi}\n\n*KRONOLOGI*\n${kronologi}\n\n*DAMPAK*\n${dampak}\n\n*HARAPAN*\n${harapan}\n\n${mediaLink ? '*MEDIA BUKTI*\n' + mediaLink : ''}\n\n_Mohon segera ditindaklanjuti._`;
 
-            document.getElementById('detailLokasi').textContent =
-                d.lokasi && d.lokasi.trim() !== '' ? d.lokasi : 'Tidak diisi';
+        const el = document.createElement('textarea');
+        el.value = text;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
 
-            document.getElementById('detailTerlapor').textContent =
-                d.terlapor && d.terlapor.trim() !== '' ? d.terlapor : 'Tidak diisi';
+        alert('Teks berhasil disalin ke clipboard!');
+    }
 
-            document.getElementById('detailSaksi').textContent =
-                d.saksi && d.saksi.trim() !== '' ? d.saksi : 'Tidak disebutkan';
-
-            document.getElementById('detailDeskripsi').textContent =
-                d.deskripsi && d.deskripsi.trim() !== '' ? d.deskripsi : 'Belum ada kronologi.';
-
-            document.getElementById('detailBukti').textContent =
-                d.bukti && d.bukti.trim() !== '' ? d.bukti : 'Tidak ada keterangan tambahan.';
-
-            document.getElementById('detailDampak').textContent =
-                d.dampak && d.dampak.trim() !== '' ? d.dampak : 'Tidak dijelaskan.';
-
-            document.getElementById('detailHarapan').textContent =
-                d.harapan && d.harapan.trim() !== '' ? d.harapan : 'Tidak ada harapan khusus yang dituliskan.';
-
-            const mediaEl = document.getElementById('detailMediaLink');
-            mediaEl.textContent =
-                d.media && d.media.trim() !== '' ? d.media : 'Tidak ada media';
-
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
-
-        function closeDetail() {
-            const modal = document.getElementById('detailModal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
-
-        function copyToWhatsApp() {
-            const title = document.getElementById('detailIdTitle').textContent.trim();
-
-            const nama = document.getElementById('detailNamaPelapor').textContent.trim();
-            const kontak = document.getElementById('detailKontakPelapor').textContent.trim();
-            const hubungan = document.getElementById('detailHubungan').textContent.trim();
-
-            const tanggal = document.getElementById('detailTanggal').textContent.trim();
-            const jam = document.getElementById('detailWaktu').textContent.trim();
-            const lokasi = document.getElementById('detailLokasi').textContent.trim();
-
-            const terlapor = document.getElementById('detailTerlapor').textContent.trim();
-            const saksi = document.getElementById('detailSaksi').textContent.trim();
-
-            const kronologi = document.getElementById('detailDeskripsi').textContent.trim();
-            const bukti = document.getElementById('detailBukti').textContent.trim();
-            const dampak = document.getElementById('detailDampak').textContent.trim();
-            const harapan = document.getElementById('detailHarapan').textContent.trim();
-            const mediaLink = document.getElementById('detailMediaLink').textContent.trim();
-
-            const lines = [
-                '*Laporan WBS RSBL*',
-                '*' + title + '*',
-                '',
-                '*1. Data Pelapor*',
-                'Pelapor : ' + nama,
-                'Hubungan: ' + hubungan,
-                'Kontak  : ' + kontak,
-                '',
-                '*2. Waktu & Lokasi Kejadian*',
-                'Hari/Tgl: ' + tanggal,
-                'Jam     : ' + jam,
-                'Lokasi  : ' + lokasi,
-                '',
-                '*3. Pihak Terlibat*',
-                'Terlapor: ' + terlapor,
-                'Saksi   : ' + saksi,
-                '',
-                '*4. Kronologi Kejadian*',
-                kronologi,
-                '',
-                '*5. Keterangan Bukti*',
-                bukti,
-                '',
-                '*6. Dampak*',
-                dampak,
-                '',
-                '*7. Harapan Pelapor*',
-                harapan
-            ];
-
-            if (mediaLink && mediaLink !== 'Tidak ada media') {
-                lines.push('', '*8. Media Bukti*', mediaLink);
-            }
-
-            lines.push('', '*Harap segera di tindak lanjuti ☝️*');
-
-            const textToCopy = lines.join('\n');
-
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(textToCopy).then(function() {
-                    alert('Teks laporan telah disalin. Silakan tempel di WhatsApp.');
-                }).catch(function() {
-                    fallbackCopy(textToCopy);
-                });
-            } else {
-                fallbackCopy(textToCopy);
-            }
-        }
-
-        function fallbackCopy(text) {
-            const textarea = document.createElement('textarea');
-            textarea.value = text;
-            textarea.style.position = 'fixed';
-            textarea.style.left = '-9999px';
-            document.body.appendChild(textarea);
-            textarea.select();
-            try {
-                document.execCommand('copy');
-                alert('Teks laporan telah disalin. Silakan tempel di WhatsApp.');
-            } catch (err) {
-                alert('Browser tidak mendukung fitur salin otomatis. Silakan salin manual.');
-            }
-            document.body.removeChild(textarea);
-        }
-
-        // tutup modal kalau klik di luar box
-        document.addEventListener('click', function(e) {
-            const mediaModal = document.getElementById('mediaModal');
-            if (!mediaModal.classList.contains('hidden')) {
-                const box = mediaModal.querySelector('div.max-w-3xl');
-                if (box && !box.contains(e.target) && !e.target.closest('button[onclick^="openMedia"]')) {
-                    closeMedia();
-                }
-            }
-
-            const detailModal = document.getElementById('detailModal');
-            if (!detailModal.classList.contains('hidden')) {
-                const box2 = detailModal.querySelector('div.max-w-3xl');
-                if (box2 && !box2.contains(e.target) && !e.target.closest('button[onclick^="openDetail"]')) {
-                    closeDetail();
-                }
-            }
-        });
-
-        // ESC untuk tutup modal
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeMedia();
-                closeDetail();
-            }
-        });
-    </script>
-</body>
-
-</html>
+    // Close on backdrop click
+    window.onclick = function(event) {
+        const mediaModal = document.getElementById('mediaModal');
+        const detailModal = document.getElementById('detailModal');
+        if (event.target == mediaModal) closeMedia();
+        if (event.target == detailModal) closeDetail();
+    }
+</script>
+@endpush
+@endsection
