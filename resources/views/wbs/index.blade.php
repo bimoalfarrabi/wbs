@@ -22,7 +22,7 @@
                             Dashboard Whistle Blowing System
                         </h1>
                         <p class="text-xs text-slate-500">
-                            RSUD Blambangan – Monitoring laporan pengaduan
+                            RSUD Blambangan - Monitoring laporan pengaduan
                         </p>
                     </div>
                 </div>
