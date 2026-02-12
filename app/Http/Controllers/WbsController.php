@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\WbsReport;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class WbsController extends Controller
@@ -37,7 +37,7 @@ class WbsController extends Controller
             'dampak' => 'nullable|string',
             'harapan' => 'nullable|string',
             'konfirmasi' => 'required|accepted',
-            'bukti_file' => 'nullable|file|max:51200', // Max 50MB (video limit)
+            'bukti_file' => 'nullable|file|max:51200', // Max 50MB
         ]);
 
         $foto_path = null;
@@ -53,34 +53,22 @@ class WbsController extends Controller
                 throw ValidationException::withMessages(['bukti_file' => 'Format file tidak didukung.']);
             }
 
-            if ($isVideo && $file->getSize() > 50 * 1024 * 1024) {
-                throw ValidationException::withMessages(['bukti_file' => 'Ukuran video melebihi 50MB.']);
-            }
-
             $prefix = $isImage ? 'foto_' : 'video_';
             $filename = $prefix . date('YmdHis') . '_' . uniqid() . '.' . $ext;
-
-            // Upload to Nextcloud
-            $nextcloudUrl = rtrim(env('NEXTCLOUD_URL'), '/') . '/' . rawurlencode($filename);
-
+            
+            // Simpan secara lokal di storage/app/public/wbs
             try {
-                $response = Http::withBasicAuth(env('NEXTCLOUD_USER'), env('NEXTCLOUD_PASSWORD'))
-                    ->withBody(file_get_contents($file->getRealPath()), $file->getMimeType())
-                    ->put($nextcloudUrl);
+                $path = $file->storeAs('wbs', $filename, 'public');
+                $fullUrl = asset('storage/' . $path);
 
-                if ($response->successful()) {
-                    if ($isImage) {
-                        $foto_path = $nextcloudUrl;
-                    } else {
-                        $video_path = $nextcloudUrl;
-                    }
+                if ($isImage) {
+                    $foto_path = $fullUrl;
                 } else {
-                    \Log::error('Nextcloud upload failed', ['status' => $response->status(), 'body' => $response->body()]);
-                    throw ValidationException::withMessages(['bukti_file' => 'Gagal mengunggah file ke server penyimpanan.']);
+                    $video_path = $fullUrl;
                 }
             } catch (\Exception $e) {
-                \Log::error('Nextcloud upload exception', ['message' => $e->getMessage()]);
-                throw ValidationException::withMessages(['bukti_file' => 'Terjadi kesalahan saat mengunggah file.']);
+                \Log::error('Local upload failed', ['message' => $e->getMessage()]);
+                throw ValidationException::withMessages(['bukti_file' => 'Gagal menyimpan file ke server.']);
             }
         }
 
