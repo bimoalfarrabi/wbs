@@ -93,6 +93,7 @@ class WbsController extends Controller
                     \Log::info("File stored at: $path");
 
                     $fullUrl = asset('storage/' . $path);
+                    \Log::info("Generated URL: $fullUrl");
 
                     $report->files()->create([
                         'file_path' => $fullUrl,
