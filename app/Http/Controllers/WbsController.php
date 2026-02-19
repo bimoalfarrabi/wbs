@@ -56,62 +56,31 @@ class WbsController extends Controller
             'harapan' => $validated['harapan'] ?? null,
         ]);
 
-        \Log::info('WBS Submission Start', $validated);
-
         if ($request->hasFile('bukti_files')) {
-            $files = $request->file('bukti_files');
-            \Log::info('Files detected: ' . count($files));
+            foreach ($request->file('bukti_files') as $file) {
+                $ext = strtolower($file->getClientOriginalExtension());
+                $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp']);
+                $isVideo = in_array($ext, ['mp4', 'mov', 'avi', 'mkv', 'wmv']);
 
-            foreach ($files as $index => $file) {
+                if (!$isImage && !$isVideo) {
+                    continue; // Skip unsupported files or handle error
+                }
+
+                $prefix = $isImage ? 'foto_' : 'video_';
+                $filename = $prefix . date('YmdHis') . '_' . uniqid() . '.' . $ext;
+
                 try {
-                    $originalName = $file->getClientOriginalName();
-                    $size = $file->getSize();
-                    $mime = $file->getMimeType();
-                    \Log::info("Processing file [$index]: $originalName ($size bytes, $mime)");
-
-                    $ext = strtolower($file->getClientOriginalExtension());
-                    $validImages = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-                    $validVideos = ['mp4', 'mov', 'avi', 'mkv', 'wmv'];
-
-                    $isImage = in_array($ext, $validImages);
-                    $isVideo = in_array($ext, $validVideos);
-
-                    if (!$isImage && !$isVideo) {
-                        \Log::warning("Skipping invalid file type: $ext");
-                        continue;
-                    }
-
-                    $prefix = $isImage ? 'foto_' : 'video_';
-                    $filename = $prefix . date('YmdHis') . '_' . uniqid() . '.' . $ext;
-
-                    // Ensure directory exists
-                    if (!Storage::disk('public')->exists('wbs')) {
-                        Storage::disk('public')->makeDirectory('wbs');
-                    }
-
                     $path = $file->storeAs('wbs', $filename, 'public');
-                    \Log::info("File stored at: $path");
-
                     $fullUrl = asset('storage/' . $path);
-                    \Log::info("Generated URL: $fullUrl");
 
                     $report->files()->create([
                         'file_path' => $fullUrl,
                         'file_type' => $isImage ? 'image' : 'video',
                     ]);
-
-                    \Log::info("Database record created for file: $filename");
-
                 } catch (\Exception $e) {
-                    \Log::error('File upload failed', [
-                        'file' => $originalName ?? 'unknown',
-                        'error' => $e->getMessage(),
-                        'trace' => $e->getTraceAsString()
-                    ]);
+                    \Log::error('Local upload failed', ['message' => $e->getMessage()]);
                 }
             }
-        } else {
-            \Log::info('No files found in request.');
         }
 
         return redirect()->route('wbs.create')->with('success', true);
