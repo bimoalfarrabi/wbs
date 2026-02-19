@@ -37,7 +37,8 @@ class WbsController extends Controller
             'dampak' => 'nullable|string',
             'harapan' => 'nullable|string',
             'konfirmasi' => 'required|accepted',
-            'bukti_files.*' => 'nullable|file|max:51200', // Max 50MB per file
+            'bukti_files' => 'nullable|array|max:3',
+            'bukti_files.*' => 'file|max:51200', // Max 50MB per file
         ]);
 
         $report = WbsReport::create([

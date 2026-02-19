@@ -317,8 +317,21 @@
 
             function handleFiles(input) {
                 const files = input.files;
+                const maxFiles = 3;
+
+                if (dt.items.length + files.length > maxFiles) {
+                    alert(`Maksimal upload hanya ${maxFiles} file.`);
+                    // Optionally clear input or just don't add the new ones
+                    // input.value = ''; // Reset if you want to be strict
+                    // return;
+                }
 
                 for (let i = 0; i < files.length; i++) {
+                    if (dt.items.length >= maxFiles) {
+                        // Stop adding if limit reached during loop
+                        break;
+                    }
+
                     const file = files[i];
                     
                     // Check for duplicates
