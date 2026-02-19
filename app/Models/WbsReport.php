@@ -23,4 +23,9 @@ class WbsReport extends Model
         'dampak',
         'harapan',
     ];
+
+    public function files()
+    {
+        return $this->hasMany(WbsFile::class);
+    }
 }
