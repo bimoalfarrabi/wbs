@@ -9,14 +9,16 @@ use App\Http\Controllers\Auth\LoginController;
 Route::get('/', [WbsController::class, 'create'])->name('wbs.create');
 Route::post('/', [WbsController::class, 'store'])->name('wbs.store');
 
-Route::get('/debug-upload-config', function () {
-    return response()->json([
-        'post_max_size' => ini_get('post_max_size'),
-        'upload_max_filesize' => ini_get('upload_max_filesize'),
-        'max_file_uploads' => ini_get('max_file_uploads'),
-        'memory_limit' => ini_get('memory_limit'),
-        'max_execution_time' => ini_get('max_execution_time'),
-    ]);
+Route::get('/debug-logs', function () {
+    $path = storage_path('logs/laravel.log');
+    if (!file_exists($path)) {
+        return 'Log file not found.';
+    }
+    $content = file_get_contents($path);
+    // Get last 200 lines
+    $lines = explode("\n", $content);
+    $lines = array_slice($lines, -200);
+    return '<pre>' . implode("\n", $lines) . '</pre>';
 });
 
 // Auth Routes
