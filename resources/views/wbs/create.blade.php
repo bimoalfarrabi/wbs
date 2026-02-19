@@ -320,6 +320,21 @@
 
                 for (let i = 0; i < files.length; i++) {
                     const file = files[i];
+                    
+                    // Check for duplicates
+                    let isDuplicate = false;
+                    for (let j = 0; j < dt.items.length; j++) {
+                        if (dt.items[j].getAsFile().name === file.name) {
+                            isDuplicate = true;
+                            break;
+                        }
+                    }
+
+                    if (isDuplicate) {
+                        console.log('Skipping duplicate file:', file.name);
+                        continue;
+                    }
+
                     // Add to DataTransfer object
                     dt.items.add(file);
 
